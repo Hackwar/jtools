@@ -155,10 +155,34 @@
 		<echo msg="COMPONENT ${component.name} HAS BEEN SUCCESSFULLY BUILD!" />
 		<echo msg="----------------------------------------" />
 	</target>
+	
 	<!-- This target prepares the variables for a batch build of several Joomla components -->
 	<target name="component-batch-build">
-		
+		<foreach list="${components}" param="component.name" target="component-batch-build-helper" />
 	</target>
+	<target name="component-batch-build-helper">
+		<if>
+			<isset property="components.${component.name}.copyright" />
+			<then>
+				<property name="component.copyright" value="${components.${component.name}.copyright}" />
+			</then>
+			<else>
+				<property name="component.copyright" value="${project.copyright}" />
+			</else>
+		</if>
+		<property name="component.version" value="${components.${component.name}.version}" />
+		<if>
+			<isset property="components.${component.name}.update" />
+			<then>
+				<property name="component.update" value="${components.${component.name}.update}" />
+			</then>
+			<else>
+				<property name="component.update" value="" />
+			</else>
+		</if>
+		<phingcall target="component-build" />
+	</target>
+
 	<!-- This target prepares the build folder for a Joomla component -->
 	<target name="component-build-prepare">
 		<taskdef file="tasks/tasks.properties" classpath="tasks/" />
