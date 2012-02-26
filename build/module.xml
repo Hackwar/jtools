@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+	name="Joomla Module Build"
+	description="This build file can create a single Joomla 
+			module based on a properties file. 
+			Alternatively it can be used in batch mode"
+	default="module-build">
+	<!--
+	The following properties have to be defined for a module to build successfully:
+	  - Module name (module.name) "mod_menu"
+	  - Client (module.client) "site" or "admin"
+	  - Copyright Statement (module.copyright) "(C) 2005 - 2011 Open Source Matters. All rights reserved."
+	  - Version (module.version) "2.5.0"
+	  - Author (project.author) "Joomla! Project"
+	  - Author E-Mail (project.email) "admin@joomla.org"
+	  - Author Website (project.website) "http://www.joomla.org"
+	  - Joomla Folder (project.joomla-folder) "/var/www"
+	Optional properties: (If not given, the shown defaults will be used)
+	  - Build Folder (project.build-folder) "/var/www/.build" (default: ${project.joomla-folder}/.build)  
+	  - License (project.license) "GNU General Public License version 2 or later; see LICENSE.txt" (default: GNU General Public License version 2 or later; see LICENSE.txt)
+	  - Updatesite (module.update) "http://example.com/collection.xml" (default: none)
+	These properties can be set in a properties file or handed in via a batch build. See component.properties for an example.
+	-->
+	<!-- This target builds a Joomla module package-->
+	<target name="module-build" depends="module-build-prepare">
+		<echo msg="----------------------------------------" />
+		<echo msg="TRYING TO BUILD ${module.name} MODULE..."/>
+		<echo msg="----------------------------------------" />
+
+		<if>
+			<equals arg1="${module.client}" arg2="site" />
+			<then>
+				<property name="module.folder" value="${project.joomla-folder}/modules/${module.name}" />
+			</then>
+			<else>
+				<property name="module.folder" value="${project.joomla-folder}/administrator/modules/${module.name}" />
+			</else>
+		</if>
+		<echo msg="Creating folder for the module." /> 
+		<mkdir dir="${project.build-folder}/modules/${module.client}/${module.name}" />
+		<echo msg="Copy the files for the module." />
+		<copy todir="${project.build-folder}/modules/${module.client}/${module.name}">
+			<fileset dir="${module.folder}">
+				<include name="**" />
+				<exclude name="${module.name}.xml" />
+			</fileset>
+		</copy>
+		<echo msg="----------------------------------------" />
+
+		<!-- Processing media folder part -->
+		<if>
+			<available file="${project.joomla-folder}/media/${module.name}" type="dir" />
+			<then>
+				<echo msg="Found a media folder for this module!" />
+				<echo msg="Creating folder for media files." />
+				<mkdir dir="${project.build-folder}/modules/${module.client}/${module.name}/media" />
+				<echo msg="Copy media files." />
+				<copy todir="${project.build-folder}/modules/${module.client}/${module.name}/media">
+					<fileset dir="${project.joomla-folder}/media/${module.name}">
+						<include name="**" />
+					</fileset>
+				</copy>
+				<echo msg="----------------------------------------" />
+			</then>
+		</if>
+
+		<!-- Processing language file parts -->
+		<if>
+			<or>
+				<available file="${project.joomla-folder}/administrator/language/en-GB/en-GB.${module.name}.ini" type="file" />
+				<available file="${project.joomla-folder}/language/en-GB/en-GB.${module.name}.ini" type="file" />
+			</or>
+			<then>
+				<echo msg="Found a language file!" />
+				<mkdir dir="${project.build-folder}/modules/${module.client}/${module.name}/language" />
+				<copy todir="${project.build-folder}/modules/${module.client}/${module.name}/language">
+					<fileset dir="${project.joomla-folder}/administrator/language">
+						<include name="*/*.${module.name}.ini" />
+						<include name="*/*.${module.name}.sys.ini" />
+					</fileset>
+					<fileset dir="${project.joomla-folder}/language">
+						<include name="*/*.${module.name}.ini" />
+						<include name="*/*.${module.name}.sys.ini" />
+					</fileset>
+				</copy>
+				<echo msg="----------------------------------------" />
+			</then>
+		</if>
+		
+		<!-- Adding index.html files where necessary -->
+		<echo msg="Adding index.html files to folders" />
+		<indexfiles path="${project.build-folder}/modules/${module.client}/${module.name}/" />
+		<echo msg="----------------------------------------" />
+
+		<!-- Creating manifest file -->
+<!--		<echo msg="Creating manifest file" />
+		<joomlamanifest 
+			type="component" 
+			extname="${component.name}" 
+			buildfolder="${project.build-folder}/components/${component.name}" 
+			version="${component.version}"
+			copyright="${component.copyright}"
+			author="${project.author}"
+			email="${project.email}"
+			website="${project.website}"
+			license="${project.license}"
+			update="${component.update}"
+		/>
+		<echo msg="Manifest file created!" />	-->
+		<echo msg="----------------------------------------" />
+	
+		<!-- Zipping up the component package -->
+<!--		<echo msg="Zipping up the component package" />
+
+		<delete file="${project.build-folder}/${component.name}.zip" quiet="true" />
+		<zip destfile="${project.build-folder}/${component.name}.zip">
+			<fileset dir="${project.build-folder}/components/${component.name}" />
+		</zip>
+		<echo msg="ZIP file created!" />
+	-->	
+		<!-- Module has been successfully build -->
+		<echo msg="----------------------------------------" />
+		<echo msg="MODULE ${module.name} HAS BEEN SUCCESSFULLY BUILD!" />
+		<echo msg="----------------------------------------" />
+	</target>
+	
+	<!-- This target prepares the variables for a batch build of several Joomla components -->
+	<target name="module-batch-build">
+		<if>
+			<isset property="modules.site" />
+			<then>
+				<property name="module.client" value="site" />
+				<foreach list="${modules.site}" param="module.name" target="module-batch-build-helper" />
+			</then>
+		</if>
+		<if>
+			<isset property="modules.admin" />
+			<then>
+				<property name="module.client" value="admin" />
+				<foreach list="${modules.admin}" param="module.name" target="module-batch-build-helper" />
+			</then>
+		</if>
+	</target>
+	<target name="module-batch-build-helper">
+		<if>
+			<isset property="modules.${module.client}.${module.name}.copyright" />
+			<then>
+				<property name="module.copyright" value="${modules.${module.client}.${module.name}.copyright}" />
+			</then>
+			<else>
+				<property name="module.copyright" value="${project.copyright}" />
+			</else>
+		</if>
+		<property name="module.version" value="${modules.${module.client}.${module.name}.version}" />
+		<if>
+			<isset property="modules.${module.client}.${module.name}.update" />
+			<then>
+				<property name="module.update" value="${modules.${module.client}.${module.name}.update}" />
+			</then>
+			<else>
+				<property name="module.update" value="" />
+			</else>
+		</if>
+		<phingcall target="module-build" />
+	</target>
+
+	<!-- This target prepares the build folder for a Joomla component -->
+	<target name="module-build-prepare">
+		<taskdef file="tasks/tasks.properties" classpath="tasks/" />
+		<if>
+			<not>
+				<isset property="project.build-folder" />
+			</not>
+			<then>
+				<property name="project.build-folder" value="${project.joomla-folder}/.build" />
+			</then>
+		</if>
+		<if>
+			<not>
+				<isset property="project.license" />
+			</not>
+			<then>
+				<property name="project.license" value="GNU General Public License version 2 or later; see LICENSE.txt" />
+			</then>
+		</if>
+		<if>
+			<not>
+				<isset property="module.update" />
+			</not>
+			<then>
+				<property name="module.update" value="" />
+			</then>
+		</if>
+		<echo msg="Creating build folder for modules." />
+		<mkdir dir="${project.build-folder}/modules/" />
+	</target>
+</project>
