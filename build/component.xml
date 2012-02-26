@@ -26,160 +26,106 @@
 		<echo msg="TRYING TO BUILD ${component.name} COMPONENT..."/>
 		<echo msg="----------------------------------------" />
 		
-		<!-- Checking for existing component elements -->
-		<available file="${project.joomla-folder}/administrator/components/${component.name}" type="dir" property="component.admin" />
+		<!-- Processing backend component part -->
 		<if>
-			<isset property="component.admin"/>
+			<available file="${project.joomla-folder}/administrator/components/${component.name}" type="dir" />
 			<then>
 				<echo msg="Found a backend component part!" />
-			</then>
-		</if>
-		<available file="${project.joomla-folder}/administrator/language/en-GB/en-GB.${component.name}.ini" type="file" property="component.language-admin" />
-		<if>
-			<isset property="component.language-admin" />
-			<then>
-				<echo msg="Found a backend language file!" />
-			</then>
-		</if>
-		<available file="${project.joomla-folder}/components/${component.name}" type="dir" property="component.front" />
-		<if>
-			<isset property="component.front"/>
-			<then>
-				<echo msg="Found a frontend component part!" />
-			</then>
-		</if>
-		<available file="${project.joomla-folder}/language/en-GB/en-GB.${component.name}.ini" type="file" property="component.language-front" />
-		<if>
-			<isset property="component.language-front" />
-			<then>
-				<echo msg="Found a frontend language file!" />
-			</then>
-		</if>		
-		<available file="${project.joomla-folder}/media/${component.name}" type="dir" property="component.media" />
-		<if>
-			<isset property="component.media" />
-			<then>
-				<echo msg="Found a media folder for this component!" />
-			</then>
-		</if>
-		
-		<!-- Create folders for build packaging -->		
-		<echo msg="----------------------------------------" />
-		<echo msg="Creating folders for build packaging" />
-		<if>
-			<isset property="component.admin"/>
-			<then>
+				<property name="component.admin" value="true" />
+				<echo msg="Creating folder for backend component part." /> 
 				<mkdir dir="${project.build-folder}/components/${component.name}/admin" />
-			</then>
-		</if>
-		<if>
-			<isset property="component.language-admin" />
-			<then>
-				<mkdir dir="${project.build-folder}/components/${component.name}/language/admin" />
-			</then>
-		</if>
-		<if>
-			<isset property="component.front"/>
-			<then>
-				<mkdir dir="${project.build-folder}/components/${component.name}/front" />
-			</then>
-		</if>
-		<if>
-			<isset property="component.language-front" />
-			<then>
-				<mkdir dir="${project.build-folder}/components/${component.name}/language/front" />
-			</then>
-		</if>
-		<if>
-			<isset property="component.media" />
-			<then>
-				<mkdir dir="${project.build-folder}/components/${component.name}/media" />
-			</then>
-		</if>
-		<echo msg="All folders created!" />
-
-		<!-- Copying the required files -->
-		<echo msg="----------------------------------------" />
-		<echo msg="Copying the component files" />
-
-		<!-- Copying admin part files -->
-		<if>
-			<isset property="component.admin"/>
-			<then>
+				<echo msg="Copy the files for backend component part." />
 				<copy todir="${project.build-folder}/components/${component.name}/admin">
 					<fileset dir="${project.joomla-folder}/administrator/components/${component.name}">
 						<include name="**" />
 						<exclude name="manifest.xml" />
 					</fileset>
 				</copy>
+				<echo msg="----------------------------------------" />
 			</then>
+			<else>
+				<property name="component.admin" value="false" />
+			</else>
 		</if>
 		
-		<!-- Copying admin language files -->
+		<!-- Processing frontend component part -->
 		<if>
-			<isset property="component.language-admin" />
+			<available file="${project.joomla-folder}/components/${component.name}" type="dir" />
 			<then>
-				<copy todir="${project.build-folder}/components/${component.name}/language/admin">
-					<fileset dir="${project.joomla-folder}/administrator/language">
-						<include name="*/*.${component.name}*.ini" />
-					</fileset>
-				</copy>		
-			</then>
-		</if>
-		
-		<!-- Copying frontend files -->
-		<if>
-			<isset property="component.front"/>
-			<then>
+				<echo msg="Found a frontend component part!" />
+				<property name="component.front" value="true" />
+				<echo msg="Creating folder for frontend component part." /> 
+				<mkdir dir="${project.build-folder}/components/${component.name}/front" />
+				<echo msg="Copy the files for frontend component part." />
 				<copy todir="${project.build-folder}/components/${component.name}/front">
 					<fileset dir="${project.joomla-folder}/components/${component.name}">
 						<include name="**" />
 					</fileset>
 				</copy>
+				<echo msg="----------------------------------------" />
 			</then>
+			<else>
+				<property name="component.front" value="false" />
+			</else>
 		</if>
 
-		<!-- Copying frontend language file -->
+		<!-- Processing media folder part -->
 		<if>
-			<isset property="component.language-front" />
+			<available file="${project.joomla-folder}/media/${component.name}" type="dir" />
 			<then>
-				<copy todir="${project.build-folder}/components/${component.name}/language/front">
-					<fileset dir="${project.joomla-folder}/language">
-						<include name="*/*.${component.name}*.ini" />
-					</fileset>
-				</copy>		
-			</then>
-		</if>
-
-		<!-- Copying media files -->
-		<if>
-			<isset property="component.media" />
-			<then>
+				<echo msg="Found a media folder for this component!" />
+				<property name="component.media" value="true" />
+				<echo msg="Creating folder for media files." />
+				<mkdir dir="${project.build-folder}/components/${component.name}/media" />
+				<echo msg="Copy media files." />
 				<copy todir="${project.build-folder}/components/${component.name}/media">
 					<fileset dir="${project.joomla-folder}/media/${component.name}">
 						<include name="**" />
 					</fileset>
 				</copy>
+				<echo msg="----------------------------------------" />
+			</then>
+			<else>
+				<property name="component.media" value="false" />
+			</else>
+		</if>
+
+		<!-- Processing language file parts -->
+		<if>
+			<available file="${project.joomla-folder}/administrator/language/en-GB/en-GB.${component.name}.ini" type="file" />
+			<then>
+				<echo msg="Found a backend language file!" />
+				<mkdir dir="${project.build-folder}/components/${component.name}/language/admin" />
+				<copy todir="${project.build-folder}/components/${component.name}/language/admin">
+					<fileset dir="${project.joomla-folder}/administrator/language">
+						<include name="*/*.${component.name}*.ini" />
+					</fileset>
+				</copy>
+				<echo msg="----------------------------------------" />
 			</then>
 		</if>
-		<echo msg="All files copied!" />
+		
+		<if>
+			<available file="${project.joomla-folder}/language/en-GB/en-GB.${component.name}.ini" type="file" />
+			<then>
+				<echo msg="Found a frontend language file!" />
+				<mkdir dir="${project.build-folder}/components/${component.name}/language/front" />
+				<copy todir="${project.build-folder}/components/${component.name}/language/front">
+					<fileset dir="${project.joomla-folder}/language">
+						<include name="*/*.${component.name}*.ini" />
+					</fileset>
+				</copy>		
+				<echo msg="----------------------------------------" />
+			</then>
+		</if>		
 
 		<!-- Adding index.html files where necessary -->
-		<echo msg="----------------------------------------" />
 		<echo msg="Adding index.html files to folders" />
 		<indexfiles path="${project.build-folder}/components/${component.name}/" />
+		<echo msg="----------------------------------------" />
 		
 		<!-- Creating manifest file -->
-		<echo msg="----------------------------------------" />
 		<echo msg="Creating manifest file" />
-		<if>
-			<not>
-				<isset property="component.update" />
-			</not>
-			<then>
-				<property name="component.update" value="" />
-			</then>
-		</if>
 		<joomlamanifest 
 			type="component" 
 			extname="${component.name}" 
@@ -193,9 +139,9 @@
 			update="${component.update}"
 		/>
 		<echo msg="Manifest file created!" />
+		<echo msg="----------------------------------------" />
 		
 		<!-- Zipping up the component package -->
-		<echo msg="----------------------------------------" />
 		<echo msg="Zipping up the component package" />
 
 		<delete file="${project.build-folder}/${component.name}.zip" quiet="true" />
@@ -230,6 +176,14 @@
 			</not>
 			<then>
 				<property name="project.license" value="GNU General Public License version 2 or later; see LICENSE.txt" />
+			</then>
+		</if>
+		<if>
+			<not>
+				<isset property="component.update" />
+			</not>
+			<then>
+				<property name="component.update" value="" />
 			</then>
 		</if>
 		<echo msg="Creating build folder for components." />
