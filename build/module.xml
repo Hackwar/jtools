@@ -93,31 +93,31 @@
 		<echo msg="----------------------------------------" />
 
 		<!-- Creating manifest file -->
-<!--		<echo msg="Creating manifest file" />
+		<echo msg="Creating manifest file" />
 		<joomlamanifest 
-			type="component" 
-			extname="${component.name}" 
-			buildfolder="${project.build-folder}/components/${component.name}" 
-			version="${component.version}"
-			copyright="${component.copyright}"
+			type="module" 
+			extname="${module.name}" 
+			buildfolder="${project.build-folder}/modules/${module.client}/${module.name}" 
+			version="${module.version}"
+			copyright="${module.copyright}"
 			author="${project.author}"
 			email="${project.email}"
 			website="${project.website}"
 			license="${project.license}"
-			update="${component.update}"
+			update="${module.update}"
 		/>
-		<echo msg="Manifest file created!" />	-->
+		<echo msg="Manifest file created!" />
 		<echo msg="----------------------------------------" />
 	
-		<!-- Zipping up the component package -->
-<!--		<echo msg="Zipping up the component package" />
+		<!-- Zipping up the module package -->
+		<echo msg="Zipping up the module package" />
 
-		<delete file="${project.build-folder}/${component.name}.zip" quiet="true" />
-		<zip destfile="${project.build-folder}/${component.name}.zip">
-			<fileset dir="${project.build-folder}/components/${component.name}" />
+		<delete file="${project.build-folder}/${module.client}/${module.name}.zip" quiet="true" />
+		<zip destfile="${project.build-folder}/${module.client}/${module.name}.zip">
+			<fileset dir="${project.build-folder}/modules/${module.client}/${module.name}" />
 		</zip>
 		<echo msg="ZIP file created!" />
-	-->	
+		
 		<!-- Module has been successfully build -->
 		<echo msg="----------------------------------------" />
 		<echo msg="MODULE ${module.name} HAS BEEN SUCCESSFULLY BUILD!" />
